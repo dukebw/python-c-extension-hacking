@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakAfterDefinitionReturnType: All
+---
+Language: Json
+DisableFormat: true
