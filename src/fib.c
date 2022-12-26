@@ -26,7 +26,7 @@ pyfib(PyObject *self, PyObject *n) {
   return PyLong_FromUnsignedLong(fib_result);
 }
 
-PyDOC_STRVAR(fib_doc, "computes the nth Fibonacci number");
+PyDoc_STRVAR(fib_doc, "computes the nth Fibonacci number");
 
 PyMethodDef fib_method = {
     "fib",              /* The name as a C string. */
