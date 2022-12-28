@@ -10,3 +10,12 @@ cmake .. -G Ninja                                 \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=YES             \
   -DPython3_INCLUDE_DIR=/path/to/python3/include
 ```
+
+
+## Build Python Wheel
+
+```shell
+python -m build --wheel                                                               \
+    "--config-setting=--build-option=build_ext"                                       \
+    "--config-setting=--build-option=-DPython3_INCLUDE_DIR=/path/to/python3/include"
+```

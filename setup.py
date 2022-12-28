@@ -1,9 +1,12 @@
-from setuptools import setup, find_packages, Extension
+"""Install Python C extension by calling CMake from setuptools"""
+from pathlib import Path
 
+import cmake_build_extension
+from setuptools import Extension, find_packages, setup
 
 setup(
     name="fib",
-    version="0.1.0",
+    version="0.0.0",
     packages=find_packages(),
     license="Apache 2.0",
     classifiers=[
@@ -14,11 +17,15 @@ setup(
         "Programming Language :: Python :: Implementation :: CPython",
     ],
     ext_modules=[
-        Extension(
-            # the qualified name of the extension module to build
-            "fib.fib",
-            # the files to compile into our module relative to ``setup.py``
-            ["src/fib.c"],
+        cmake_build_extension.CMakeExtension(
+            name="Fibonacci",
+            install_prefix="fib",
+            source_dir=str(Path(__file__).parent.absolute()),
+            cmake_configure_options=[
+                "-DBUILD_SHARED_LIBS=YES",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=YES",
+            ],
         ),
     ],
+    cmdclass={"build_ext": cmake_build_extension.BuildExtension},
 )
