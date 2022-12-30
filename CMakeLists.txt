@@ -18,8 +18,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Find Python3 for Python module development
 find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 
+# Add fib extension module library as build target
 Python3_add_library(fib src/fib.c)
-add_library(Fib::fib ALIAS fib)
 
 # Ask distutils what the Python extension module suffix is
 # NOTE: this is based on pybind11's code in pybind11NewTools.cmake
