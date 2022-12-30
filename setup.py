@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import cmake_build_extension
-from setuptools import Extension, find_packages, setup
+from setuptools import find_packages, setup
 
 setup(
     name="fib",
@@ -22,8 +22,8 @@ setup(
             install_prefix="fib",
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_configure_options=[
-                "-DBUILD_SHARED_LIBS=YES",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=YES",
+                "-DBUILD_SHARED_LIBS:BOOL=ON",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON",
             ],
         ),
     ],
