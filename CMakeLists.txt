@@ -40,13 +40,13 @@ endif()
 set_target_properties(
   fib
   PROPERTIES
-  # Set the Python extension module suffix
-  SUFFIX "${_PYTHON_MODULE_EXTENSION}"
-  PREFIX ""
+  # Set the Python extension module name, prefix, and suffix
   OUTPUT_NAME "fib"
+  PREFIX ""
+  SUFFIX "${_PYTHON_MODULE_EXTENSION}"
   INTERPROCEDURAL_OPTIMIZATION ON
   C_VISIBILITY_PRESET hidden
-  CXX_VISIBILITY_PRESET ON
+  CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON)
 
 # Install the Python module
