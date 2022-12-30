@@ -22,6 +22,7 @@ Python3_add_library(fib src/fib.c)
 add_library(Fib::fib ALIAS fib)
 
 # Ask distutils what the Python extension module suffix is
+# NOTE: this is based on pybind11's code in pybind11NewTools.cmake
 execute_process(
   COMMAND
     "python" "-c"
