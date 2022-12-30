@@ -21,21 +21,32 @@ find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 Python3_add_library(fib src/fib.c)
 add_library(Fib::fib ALIAS fib)
 
-# =======
-# Install
-# =======
+# Ask distutils what the Python extension module suffix is
+execute_process(
+  COMMAND
+    "python" "-c"
+    "import sys, importlib; s = importlib.import_module('distutils.sysconfig' if sys.version_info < (3, 10) else 'sysconfig'); print(s.get_config_var('EXT_SUFFIX') or s.get_config_var('SO'))"
+  OUTPUT_VARIABLE _PYTHON_MODULE_EXTENSION
+  ERROR_VARIABLE _PYTHON_MODULE_EXTENSION_ERR
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# See official documentation on exporting targets:
-# https://cmake.org/cmake/help/latest/guide/importing-exporting/index.html#exporting-targets
+if(_PYTHON_MODULE_EXTENSION STREQUAL "")
+  message(
+    FATAL_ERROR "could not query the module file extension. "
+                "Full error message:\n${_PYTHON_MODULE_EXTENSION_ERR}")
+endif()
 
-# Install the target with C++ code
-install(
-    TARGETS fib
-    EXPORT FibTargets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+set_target_properties(
+  fib
+  PROPERTIES
+  # Set the Python extension module suffix
+  SUFFIX "${_PYTHON_MODULE_EXTENSION}"
+  PREFIX ""
+  OUTPUT_NAME "fib"
+  INTERPROCEDURAL_OPTIMIZATION ON
+  C_VISIBILITY_PRESET hidden
+  CXX_VISIBILITY_PRESET ON
+  VISIBILITY_INLINES_HIDDEN ON)
 
 # Install the Python module
 install(
@@ -43,53 +54,3 @@ install(
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-
-# Install the exported targets
-install(
-  EXPORT FibTargets
-  FILE FibTargets.cmake
-  NAMESPACE Fib::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Fib)
-
-# Create a CMake package
-include(CMakePackageConfigHelpers)
-
-# Prepare the Config.cmake.in content
-set(PACKAGE_INIT_MACRO "@PACKAGE_INIT@")
-set(CONFIG_CMAKE_IN "\
-@PACKAGE_INIT_MACRO@\n\
-include(\"\${CMAKE_CURRENT_LIST_DIR}/FibTargets.cmake\")\n\
-check_required_components(Fib)\n"
-)
-
-# Create Config.cmake.in
-file(CONFIGURE
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Config.cmake.in
-    CONTENT ${CONFIG_CMAKE_IN}
-    @ONLY)
-
-# Create FibConfig.cmake
-configure_package_config_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/FibConfig.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Fib)
-
-# Create FibConfigVersion.cmake
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/FibConfigVersion.cmake"
-  VERSION "${version}"
-  COMPATIBILITY AnyNewerVersion
-)
-
-# Install CMake package files
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/FibConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/FibConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Fib
-)
-
-# ===============
-# Python bindings
-# ===============
-
-set(FIB_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
