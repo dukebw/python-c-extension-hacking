@@ -7,19 +7,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Common installation directories
 include(GNUInstallDirs)
+# TODO: @loader_path on MacOS, $ORIGIN on Linux
+set(CMAKE_INSTALL_RPATH @loader_path)
 
 # Use -fPIC even if statically compiled
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# =======
+# vector_add library
+# =======
+
+add_library(vector_add
+  src/vector_add.h
+  src/vector_add.cpp)
 
 # =======
 # fib library
 # =======
 
 # Find Python3 for Python module development
-find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development.Module NumPy REQUIRED)
 
 # Add fib extension module library as build target
 Python3_add_library(fib src/fib.c)
+
+target_link_libraries(fib PRIVATE vector_add Python3::NumPy)
 
 # Ask distutils what the Python extension module suffix is
 # NOTE: this is based on pybind11's code in pybind11NewTools.cmake
@@ -49,9 +61,9 @@ set_target_properties(
   CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON)
 
-# Install the Python module
+# Install the Python module and its dependent dynamic library
 install(
-  TARGETS fib
+  TARGETS fib vector_add
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
